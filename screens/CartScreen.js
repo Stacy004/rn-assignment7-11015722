@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { imagePaths } from './imagePaths'; // Import imagePaths
+import { imagePaths } from './imagePaths'; 
 
 const CartScreen = () => {
   const [cartItems, setCartItems] = useState([]);

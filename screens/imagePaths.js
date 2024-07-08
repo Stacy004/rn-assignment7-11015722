@@ -1,4 +1,4 @@
-// imagePaths.js
+
 export const imagePaths = {
     'dress1': require('../assets/dress1.png'),
     'dress2': require('../assets/dress2.png'),

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { imagePaths } from './imagePaths'; // Import imagePaths
+import { imagePaths } from './imagePaths';
 
 const HomeScreen = ({ navigation }) => {
   const addToCart = async (item) => {
@@ -16,7 +16,9 @@ const HomeScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.head}>
-        <Image source={require('../assets/Menu.png')} />
+        <TouchableOpacity onPress={() => navigation.openDrawer()}>
+          <Image source={require('../assets/Menu.png')} />
+        </TouchableOpacity>
         <Image source={require('../assets/Logo.png')} />
         <View style={styles.inner}>
           <Image source={require('../assets/Search.png')} />
@@ -240,7 +242,7 @@ const styles = StyleSheet.create({
     color: 'red',
   },
   list: {
-    backgroundColor: '#D3D3D3', 
+    backgroundColor: '#D3D3D3',
     height: 30,
     width: 30,
     justifyContent: 'center',
@@ -248,7 +250,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
   },
   wifi: {
-    backgroundColor: '#D3D3D3', 
+    backgroundColor: '#D3D3D3',
     borderRadius: 30,
     height: 30,
     width: 30,
