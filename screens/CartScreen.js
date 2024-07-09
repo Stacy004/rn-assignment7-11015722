@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { imagePaths } from './imagePaths'; 
 
-const CartScreen = () => {
+const CartScreen = ({ navigation }) => {
   const [cartItems, setCartItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
 
@@ -11,66 +10,83 @@ const CartScreen = () => {
     const fetchCartItems = async () => {
       try {
         const keys = await AsyncStorage.getAllKeys();
-        const items = await AsyncStorage.multiGet(keys);
-        const cartItems = items
-          .filter(item => item[0].startsWith('@cart_'))
-          .map(item => JSON.parse(item[1]));
-        setCartItems(cartItems);
+        const cartKeys = keys.filter(key => key.startsWith('@cart_'));
+        const cartData = await AsyncStorage.multiGet(cartKeys);
+        const cart = cartData.map(item => JSON.parse(item[1]));
+        setCartItems(cart);
 
-        const total = cartItems.reduce((sum, item) => sum + parseFloat(item.price.replace('$', '')), 0);
+        const total = cart.reduce((sum, item) => sum + (typeof item.price === 'number' ? item.price : 0), 0);
         setTotalPrice(total);
-      } catch (e) {
-        console.error(e);
+      } catch (error) {
+        console.error(error);
       }
     };
 
     fetchCartItems();
   }, []);
 
-  const removeFromCart = async (id) => {
+  const truncateDescription = (description, maxLength) => {
+    if (description.length > maxLength) {
+      return `${description.substring(0, maxLength)}...`;
+    }
+    return description;
+  };
+
+  const removeFromCart = async (itemId) => {
     try {
-      await AsyncStorage.removeItem(`@cart_${id}`);
-      setCartItems(cartItems.filter(item => item.id !== id));
-      const updatedItems = cartItems.filter(item => item.id !== id);
-      const total = updatedItems.reduce((sum, item) => sum + parseFloat(item.price.replace('$', '')), 0);
+      
+      await AsyncStorage.removeItem(`@cart_${itemId}`);
+
+      
+      const updatedCart = cartItems.filter(item => item.id !== itemId);
+      setCartItems(updatedCart);
+
+    
+      const total = updatedCart.reduce((sum, item) => sum + (typeof item.price === 'number' ? item.price : 0), 0);
       setTotalPrice(total);
-    } catch (e) {
-      console.error(e);
+
+     
+      
+    } catch (error) {
+      console.error('Failed to remove item from cart', error);
     }
   };
 
   return (
     <View style={styles.container}>
-      <ScrollView>
-        <View style={styles.iconSearch}>
-          <Image source={require('../assets/Logo.png')} style={styles.addIcon} />
-          <Image source={require('../assets/Search.png')} style={styles.searchIcon} />
-        </View>
-        <View>
-          <Image source={require('../assets/checkout.png')} style={styles.checkout} />
-        </View>
-        {cartItems.map(item => (
-          <View key={item.id} style={styles.item}>
-            <Image source={imagePaths[item.imageKey]} style={styles.image} />
+      <View style={styles.head}>
+        <Image source={require('../assets/Logo.png')} />
+        <TouchableOpacity onPress={() => navigation.navigate('Search')}>
+          <Image source={require('../assets/Search.png')} />
+        </TouchableOpacity>
+      </View>
+
+      <FlatList
+        data={cartItems}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.item}>
+            <Image source={{ uri: item.image }} style={styles.image} />
             <View style={styles.itemDetails}>
-              <Text style={styles.name}>{item.name}</Text>
-              <Text style={styles.description}>{item.description}</Text>
-              <Text style={styles.price}>{item.price}</Text>
+              <Text style={styles.name}>{item.title}</Text>
+              <Text style={styles.description}>{truncateDescription(item.description, 50)}</Text>
+              <Text style={styles.price}>
+                ${typeof item.price === 'number' ? item.price.toFixed(2) : 'N/A'}
+              </Text>
             </View>
             <TouchableOpacity onPress={() => removeFromCart(item.id)} style={styles.removeButton}>
-              <Image source={require('../assets/remove.png')} style={styles.addIcon} />
+              <Image source={require('../assets/remove.png')} style={styles.removeIcon} />
             </TouchableOpacity>
           </View>
-        ))}
-      </ScrollView>
+        )}
+      />
+
       <View style={styles.footer}>
-        <Text style={styles.totalText}>EST. TOTAL</Text>
-        <Text style={styles.totalPrice}>${totalPrice.toFixed(2)}</Text>
-      </View>
-      <TouchableOpacity style={styles.checkoutButton}>
-          <Image source={require('../assets/shoppingBag.png')} style={styles.checkoutIcon} />
-          <Text style={styles.checkoutText}>CHECKOUT</Text>
+        <Text style={styles.totalPrice}>Total: ${totalPrice.toFixed(2)}</Text>
+        <TouchableOpacity onPress={() => {/* handle checkout */}} style={styles.checkoutButton}>
+          <Text style={styles.checkoutButtonText}>Checkout</Text>
         </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -79,20 +95,25 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingTop: 20,
+    paddingHorizontal: 10,
+  },
+  head: {
+    flexDirection: 'row',
+    marginTop: 70,
+    justifyContent: 'space-around',
+    marginBottom: 10,
   },
   item: {
     flexDirection: 'row',
     marginBottom: 16,
-    marginTop: 20,
-    
     paddingBottom: 8,
     alignItems: 'center',
-    paddingHorizontal: 30,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
   },
   image: {
     width: 100,
-    height: 150,
+    height: 100,
     marginRight: 16,
   },
   itemDetails: {
@@ -110,56 +131,35 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#000',
   },
-  removeButton: {
-    marginLeft: 16,
-    marginTop: 100,
-  },
-  iconSearch: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginLeft: 100,
-    marginTop: 40,
-  },
-  searchIcon: {
-    marginLeft: 70,
-  },
-  checkout: {
-    height: 70,
-    width: 170, 
-    marginLeft: 100,
-  },
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    padding: 16,
+    borderTopWidth: 1,
+    borderColor: '#ddd',
+    backgroundColor: '#f9f9f9',
     alignItems: 'center',
-    paddingHorizontal: 30,
-    paddingVertical: 20,
-    backgroundColor: '#fff',
-  },
-  totalText: {
-    color: '#A9A9A9',
-    fontSize: 16,
   },
   totalPrice: {
-    color: 'red',
-    fontSize: 24,
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
   },
   checkoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent:'center',
-    backgroundColor: '#0a0a0a',
-    paddingTop: 10,
+    backgroundColor: '#000',
+    padding: 10,
+    borderRadius: 5,
   },
-  checkoutIcon: {
+  checkoutButtonText: {
+    color: '#fff',
+    fontSize: 18,
+  },
+  removeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+  },
+  removeIcon: {
     width: 24,
     height: 24,
-    marginRight: 20,
-    tintColor: '#fff',
-  },
-  checkoutText: {
-    color: '#fff',
-    fontSize: 16,
   },
 });
 
