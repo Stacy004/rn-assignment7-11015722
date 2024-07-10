@@ -3,6 +3,7 @@ import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 
 const ProductItem = ({ item, handleImageClick, addToCart, truncateDescription }) => {
   return (
+
     <TouchableOpacity onPress={() => handleImageClick(item)} style={styles.item}>
       <Image source={{ uri: item.image }} style={styles.image} />
       <View style={styles.addButtonContainer}>
@@ -37,6 +38,7 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: 150,
+    
   },
   itemDetails: {
     flex: 1,

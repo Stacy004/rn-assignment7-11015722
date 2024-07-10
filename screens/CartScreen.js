@@ -60,6 +60,10 @@ const CartScreen = ({ navigation }) => {
           <Image source={require('../assets/Search.png')} />
         </TouchableOpacity>
       </View>
+      <Image source={require('../assets/checkout.png')} style={styles.checkimg}/>
+      <View> 
+
+      </View>
 
       <FlatList
         data={cartItems}
@@ -69,7 +73,7 @@ const CartScreen = ({ navigation }) => {
             <Image source={{ uri: item.image }} style={styles.image} />
             <View style={styles.itemDetails}>
               <Text style={styles.name}>{item.title}</Text>
-              <Text style={styles.description}>{truncateDescription(item.description, 50)}</Text>
+              <Text style={styles.description}>{truncateDescription(item.description, 30)}</Text>
               <Text style={styles.price}>
                 ${typeof item.price === 'number' ? item.price.toFixed(2) : 'N/A'}
               </Text>
@@ -81,12 +85,19 @@ const CartScreen = ({ navigation }) => {
         )}
       />
 
-      <View style={styles.footer}>
-        <Text style={styles.totalPrice}>Total: ${totalPrice.toFixed(2)}</Text>
-        <TouchableOpacity onPress={() => {/* handle checkout */}} style={styles.checkoutButton}>
-          <Text style={styles.checkoutButtonText}>Checkout</Text>
+      
+        <View style={styles.total}>
+          <Text>EST.TOTAL</Text>
+        <Text style={styles.totalPrice}> ${totalPrice.toFixed(2)}</Text>
+        </View>
+        <View style={styles.ButtonContainer}>
+        <TouchableOpacity onPress={() => {}} style={styles.checkoutButton}>
+          <Image source={require('../assets/shopping bag.png') } style={styles.shopbag} />
+          <Text style={styles.checkoutButtonText}>Checkout</Text> 
         </TouchableOpacity>
-      </View>
+        </View>
+        
+     
     </View>
   );
 };
@@ -108,13 +119,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingBottom: 8,
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+   
   },
   image: {
-    width: 100,
-    height: 100,
+    width: 80,
+    height: 80,
     marginRight: 16,
+    resizeMode: ' contain'
   },
   itemDetails: {
     flex: 1,
@@ -142,25 +153,47 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+    marginLeft: 180,
+    color:'red',
   },
   checkoutButton: {
-    backgroundColor: '#000',
-    padding: 10,
-    borderRadius: 5,
+    
+  
+    
+    flexDirection:'row'
   },
   checkoutButtonText: {
     color: '#fff',
     fontSize: 18,
+   
   },
   removeButton: {
     position: 'absolute',
-    top: 10,
+    top: 70,
     right: 10,
   },
   removeIcon: {
     width: 24,
     height: 24,
   },
+  total:{
+    flexDirection:"row",
+    
+  },
+  
+  shopbag:{
+    tintColor:'white',
+    marginLeft: 100,
+    marginRight: 10,
+  },
+  checkimg:{
+    marginLeft: 30,
+    marginBottom: 15,
+  },
+  ButtonContainer:{
+    backgroundColor:'black',
+    height: 40,
+  }
 });
 
 export default CartScreen;
