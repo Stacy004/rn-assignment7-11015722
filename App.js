@@ -14,6 +14,7 @@ const MainStackNavigator = () => (
   <Stack.Navigator initialRouteName="Home">
     <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
     <Stack.Screen name="Cart" component={CartScreen} options={{ headerShown: false }} />
+    
   </Stack.Navigator>
 );
 
@@ -63,7 +64,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     paddingBottom: 4,
-    marginLeft: 10,
+    marginLeft: 10
   },
   closeButton: {
     width: 20,
